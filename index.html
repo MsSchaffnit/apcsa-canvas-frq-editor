@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { margin: 0; padding: 0; background: #fff; }
+    #editor {
+      border: 2px solid #555;
+      border-radius: 4px;
+      padding: 10px;
+      height: 280px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="editor" contenteditable="true" spellcheck="false"></div>
+
+  <script type="module">
+    import { CodeJar } from 'https://medv.io/codejar/codejar.js';
+
+    const editor = document.querySelector('#editor');
+
+    // Prevent Enter key from creating extra HTML <div> boxes
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.execCommand('insertLineBreak');
+      }
+    });
+
+    // Plain text rendering (no syntax highlighting)
+    const highlightPlainText = () => {};
+
+    // Initialize CodeJar with 4-space tab indentation
+    const jar = CodeJar(editor, highlightPlainText, { tab: '    ' });
+    jar.update('');
+
+    // Send code updates to parent Canvas page
+    jar.onUpdate(code => {
+      window.parent.postMessage({ type: 'CODE_UPDATE', code: code }, '*');
+    });
+  </script>
+</body>
+</html>
